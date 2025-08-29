@@ -1,0 +1,159 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: nyayamitra-postgres
+    environment:
+      POSTGRES_DB: nyayamitra
+      POSTGRES_USER: nyayamitra_user
+      POSTGRES_PASSWORD: nyayamitra_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nyayamitra_user -d nyayamitra"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Redis for BullMQ
+  redis:
+    image: redis:7-alpine
+    container_name: nyayamitra-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # NyayaMitra API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nyayamitra-api
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgresql://nyayamitra_user:nyayamitra_password@postgres:5432/nyayamitra?schema=public
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production-please
+      JWT_REFRESH_SECRET: your-super-secret-refresh-key-change-this-in-production-please
+      AWS_REGION: us-west-2
+      AWS_ACCESS_KEY_ID: your-aws-access-key-id
+      AWS_SECRET_ACCESS_KEY: your-aws-secret-access-key
+      S3_BUCKET_NAME: nyayamitra-uploads-dev
+      PICKLEAXE_API_URL: https://api.pickleaxe.com/v1
+      PICKLEAXE_API_KEY: your-pickleaxe-api-key
+      CORS_ORIGIN: http://localhost:3000,http://localhost:5173
+      LOG_LEVEL: debug
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Job Worker (separate instance for background jobs)
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nyayamitra-worker
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://nyayamitra_user:nyayamitra_password@postgres:5432/nyayamitra?schema=public
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production-please
+      JWT_REFRESH_SECRET: your-super-secret-refresh-key-change-this-in-production-please
+      AWS_REGION: us-west-2
+      AWS_ACCESS_KEY_ID: your-aws-access-key-id
+      AWS_SECRET_ACCESS_KEY: your-aws-secret-access-key
+      S3_BUCKET_NAME: nyayamitra-uploads-dev
+      PICKLEAXE_API_URL: https://api.pickleaxe.com/v1
+      PICKLEAXE_API_KEY: your-pickleaxe-api-key
+      LOG_LEVEL: debug
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    command: ["npm", "run", "worker"]
+    restart: unless-stopped
+
+  # Nginx (Optional - for production load balancing)
+  nginx:
+    image: nginx:alpine
+    container_name: nyayamitra-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - api
+    restart: unless-stopped
+    profiles:
+      - production
+
+  # Redis Admin (Optional - for development)
+  redis-admin:
+    image: redislabs/redisinsight:latest
+    container_name: nyayamitra-redis-admin
+    ports:
+      - "8001:8001"
+    depends_on:
+      - redis
+    restart: unless-stopped
+    profiles:
+      - development
+
+  # Database Admin (Optional - for development)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: nyayamitra-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@nyayamitra.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    restart: unless-stopped
+    profiles:
+      - development
+
+volumes:
+  postgres_data:
+  redis_data:
+  pgadmin_data:
+
+networks:
+  default:
+    name: nyayamitra-network
