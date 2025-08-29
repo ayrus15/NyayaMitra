@@ -1,0 +1,260 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  phone     String?  @unique
+  password  String
+  firstName String
+  lastName  String
+  role      UserRole @default(CITIZEN)
+  avatar    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  sessions         Session[]
+  sosIncidents     SosIncident[]
+  corruptionReports CorruptionReport[]
+  followedCases    CaseFollow[]
+  chatSessions     ChatSession[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  CITIZEN
+  ADVOCATE
+  ADMIN
+  MODERATOR
+}
+
+// JWT Session Management
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  refreshToken String   @unique
+  isActive     Boolean  @default(true)
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// Legal Case Tracking
+model Case {
+  id          String     @id @default(cuid())
+  caseNumber  String     @unique
+  title       String
+  description String?
+  court       String
+  judge       String?
+  status      CaseStatus @default(PENDING)
+  filingDate  DateTime
+  nextHearing DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  events    CaseEvent[]
+  followers CaseFollow[]
+
+  @@map("cases")
+}
+
+enum CaseStatus {
+  PENDING
+  ONGOING
+  ADJOURNED
+  DISPOSED
+  DISMISSED
+}
+
+model CaseEvent {
+  id          String    @id @default(cuid())
+  caseId      String
+  title       String
+  description String
+  eventDate   DateTime
+  eventType   EventType @default(HEARING)
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@map("case_events")
+}
+
+enum EventType {
+  HEARING
+  JUDGMENT
+  ORDER
+  NOTICE
+  ADJOURNMENT
+  DISPOSAL
+}
+
+model CaseFollow {
+  id     String @id @default(cuid())
+  userId String
+  caseId String
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, caseId])
+  @@map("case_follows")
+}
+
+// SOS Emergency System
+model SosIncident {
+  id          String      @id @default(cuid())
+  userId      String
+  location    Json // { lat: number, lng: number, address: string }
+  description String
+  status      SosStatus   @default(PENDING)
+  priority    SosPriority @default(MEDIUM)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mediaAssets MediaAsset[]
+
+  @@map("sos_incidents")
+}
+
+enum SosStatus {
+  PENDING
+  ACKNOWLEDGED
+  IN_PROGRESS
+  RESOLVED
+  DISMISSED
+}
+
+enum SosPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// Corruption Reporting System
+model CorruptionReport {
+  id               String       @id @default(cuid())
+  userId           String
+  title            String
+  description      String
+  department       String
+  officialName     String?
+  location         String
+  incidentDate     DateTime
+  status           ReportStatus @default(SUBMITTED)
+  assignedTo       String?
+  resolution       String?
+  isAnonymous      Boolean      @default(false)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  // Relations
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  evidence    MediaAsset[]
+
+  @@map("corruption_reports")
+}
+
+enum ReportStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  INVESTIGATING
+  ACTION_TAKEN
+  CLOSED
+  DISMISSED
+}
+
+// Media Asset Management (for SOS and Reports)
+model MediaAsset {
+  id               String  @id @default(cuid())
+  filename         String
+  originalName     String
+  mimeType         String
+  size             Int
+  s3Key            String
+  s3Url            String
+  uploadStatus     UploadStatus @default(PENDING)
+  
+  // Polymorphic relations
+  sosIncidentId        String?
+  corruptionReportId   String?
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  sosIncident      SosIncident?      @relation(fields: [sosIncidentId], references: [id], onDelete: Cascade)
+  corruptionReport CorruptionReport? @relation(fields: [corruptionReportId], references: [id], onDelete: Cascade)
+
+  @@map("media_assets")
+}
+
+enum UploadStatus {
+  PENDING
+  UPLOADING
+  COMPLETED
+  FAILED
+}
+
+// Chatbot System
+model ChatSession {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages ChatMessage[]
+
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id            String      @id @default(cuid())
+  sessionId     String
+  content       String
+  role          MessageRole
+  metadata      Json?       // For storing additional context
+  createdAt     DateTime    @default(now())
+
+  // Relations
+  session ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
