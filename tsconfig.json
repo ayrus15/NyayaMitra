@@ -20,8 +20,8 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-    "types": ["node", "jest"]
+    "exactOptionalPropertyTypes": false,
+    "types": ["node"]
   },
   "include": [
     "src/**/*"

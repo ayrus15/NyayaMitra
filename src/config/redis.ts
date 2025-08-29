@@ -4,7 +4,6 @@ import { config } from './index';
 // Create Redis client for general use
 export const redis = new Redis(config.redis.url, {
   password: config.redis.password,
-  retryDelayOnFailover: 100,
   enableReadyCheck: false,
   maxRetriesPerRequest: null,
 });
@@ -12,7 +11,6 @@ export const redis = new Redis(config.redis.url, {
 // Create separate Redis connection for BullMQ
 export const bullRedis = new Redis(config.redis.url, {
   password: config.redis.password,
-  retryDelayOnFailover: 100,
   enableReadyCheck: false,
   maxRetriesPerRequest: null,
 });
