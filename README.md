@@ -1,55 +1,52 @@
-# NyayaMitra Legal Systems Backend API
+# NyayaMitra - Digital Legal Companion 🏛️
 
-A comprehensive Express.js backend API for the NyayaMitra Legal Systems Web Application, providing legal assistance, case tracking, emergency SOS system, corruption reporting, and AI-powered legal chatbot services.
+A comprehensive full-stack web application providing accessible legal services including case tracking, emergency assistance, AI-powered legal chat, and corruption reporting for Indian citizens.
 
-## 🚀 Features
+![NyayaMitra Homepage](https://github.com/user-attachments/assets/fdd8d560-3cee-42c7-868d-8d54a4b7dec9)
 
-- **User Authentication & Authorization** - JWT-based authentication with role-based access control
-- **Legal Case Tracking** - Track court cases, follow cases for updates, and view case timelines
-- **AI Legal Chatbot** - Pickleaxe-powered legal assistance chatbot
-- **Emergency SOS System** - Location-based emergency reporting with media upload
-- **Corruption Reporting** - Anonymous and public corruption reporting with evidence upload
-- **Background Job Processing** - BullMQ-powered background jobs for notifications and data sync
-- **Media Management** - AWS S3 integration for secure file uploads
-- **Real-time Notifications** - Email and SMS notifications for important updates
-- **Comprehensive Security** - Rate limiting, CORS, input validation, and security headers
-- **Health Monitoring** - Built-in health checks and performance monitoring
+## 🌟 Features
 
-## 📋 Table of Contents
+### 🏛️ **Legal Case Tracking**
+- Search and track legal cases across courts
+- Follow case updates and hearing schedules
+- Real-time case status notifications
+- Court calendar integration
 
-- [Architecture](#architecture)
-- [Technology Stack](#technology-stack)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Database Setup](#database-setup)
-- [Running the Application](#running-the-application)
-- [API Documentation](#api-documentation)
-- [Background Jobs](#background-jobs)
-- [Docker Setup](#docker-setup)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
+### 🚨 **SOS Emergency System**
+- One-click emergency assistance
+- Location-based emergency services
+- Real-time incident tracking
+- Priority-based dispatch system
 
-## 🏗️ Architecture
+### 🤖 **AI Legal Assistant**
+- 24/7 intelligent legal guidance
+- Natural language query processing
+- Legal document analysis
+- Multi-language support
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Client Apps   │    │   Load Balancer │    │     API Server  │
-│  (Web/Mobile)   │───▶│    (Nginx)      │───▶│   (Express.js)  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-                                                        │
-        ┌─────────────────┬─────────────────┬─────────────────┐
-        │                 │                 │                 │
-┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
-│   PostgreSQL    │ │      Redis      │ │   Job Workers   │ │     AWS S3      │
-│   (Database)    │ │   (Cache/Jobs)  │ │   (BullMQ)      │ │ (File Storage)  │
-└─────────────────┘ └─────────────────┘ └─────────────────┘ └─────────────────┘
-```
+### 📋 **Corruption Reporting**
+- Anonymous complaint submission
+- Secure evidence upload
+- Automated case triaging
+- Status tracking and updates
+
+### 🔐 **Security & Authentication**
+- JWT-based secure authentication
+- Role-based access control (Citizen, Advocate, Admin, Moderator)
+- Data encryption and privacy protection
+- Multi-factor authentication support
 
 ## 🛠️ Technology Stack
 
-### Core
+### Frontend
+- **Framework**: React 18 with TypeScript
+- **UI Library**: Material-UI (MUI) v5
+- **State Management**: Redux Toolkit
+- **Routing**: React Router v6
+- **API Integration**: Axios
+- **Build Tool**: Create React App
+
+### Backend
 - **Runtime**: Node.js 18+
 - **Framework**: Express.js with TypeScript
 - **Database**: PostgreSQL with Prisma ORM
@@ -68,42 +65,90 @@ A comprehensive Express.js backend API for the NyayaMitra Legal Systems Web Appl
 - **Notifications**: Email (SMTP) & SMS (Twilio)
 
 ### Development & Deployment
-- **Build Tool**: TypeScript Compiler
-- **Process Manager**: PM2 (production)
 - **Containerization**: Docker & Docker Compose
+- **Process Manager**: PM2 (production)
+- **Reverse Proxy**: Nginx
 - **Logging**: Winston with structured logging
 
-## 📚 Prerequisites
+## 🚀 Quick Start
 
-- **Node.js** 18.x or higher
-- **PostgreSQL** 12.x or higher
-- **Redis** 6.x or higher
-- **Docker** & Docker Compose (optional)
-- **AWS Account** (for S3 storage)
+### Prerequisites
 
-## 🔧 Installation
+- **Node.js** 18+ and npm
+- **Docker** and Docker Compose
+- **Git**
 
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/ayrus15/NyayaMitra.git
 cd NyayaMitra
 ```
 
-### 2. Install Dependencies
-```bash
-npm install
-```
+### 2. Environment Setup
 
-### 3. Setup Environment Variables
 ```bash
+# Copy environment file
 cp .env.example .env
+
 # Edit .env with your configuration
+# Update database credentials, JWT secrets, AWS keys, etc.
 ```
 
-### 4. Setup Database
+### 3. Quick Deploy with Docker
+
 ```bash
-# Start PostgreSQL and Redis (if running locally)
-# Or use Docker Compose (see Docker Setup section)
+# Make deployment script executable
+chmod +x deploy.sh
+
+# Run deployment
+./deploy.sh
+```
+
+This will:
+- Start PostgreSQL and Redis containers
+- Build and run the backend API
+- Build and run the React frontend
+- Set up Nginx reverse proxy
+- Perform health checks
+
+### 4. Access the Application
+
+- **Frontend**: http://localhost
+- **API**: http://localhost:3000
+- **Health Check**: http://localhost:3000/health
+
+## 🐳 Docker Deployment
+
+### Development Environment
+
+```bash
+# Start all services with development tools
+docker-compose --profile development up -d
+
+# Access development tools:
+# - PgAdmin: http://localhost:8082 (admin@nyayamitra.com / admin)
+# - Redis Insight: http://localhost:8001
+```
+
+### Production Environment
+
+```bash
+# Setup production environment
+cp .env.production.example .env.production
+# Edit .env.production with production values
+
+# Deploy to production
+./deploy-prod.sh
+```
+
+## 🏗️ Manual Setup
+
+### Backend Setup
+
+```bash
+# Install dependencies
+npm install
 
 # Generate Prisma client
 npm run prisma:generate
@@ -111,134 +156,111 @@ npm run prisma:generate
 # Run database migrations
 npm run prisma:migrate
 
-# (Optional) Seed database with sample data
-npm run prisma:seed
-```
-
-### 5. Build the Application
-```bash
-npm run build
-```
-
-## ⚙️ Configuration
-
-### Environment Variables
-
-Create a `.env` file based on `.env.example`:
-
-```env
-# Database Configuration
-DATABASE_URL="postgresql://username:password@localhost:5432/nyayamitra"
-
-# Server Configuration
-NODE_ENV="development"
-PORT=3000
-
-# JWT Configuration
-JWT_SECRET="your-super-secret-jwt-key"
-JWT_REFRESH_SECRET="your-super-secret-refresh-key"
-JWT_EXPIRES_IN="15m"
-JWT_REFRESH_EXPIRES_IN="7d"
-
-# Redis Configuration
-REDIS_URL="redis://localhost:6379"
-
-# AWS S3 Configuration
-AWS_REGION="us-west-2"
-AWS_ACCESS_KEY_ID="your-aws-access-key-id"
-AWS_SECRET_ACCESS_KEY="your-aws-secret-access-key"
-S3_BUCKET_NAME="nyayamitra-uploads"
-
-# External API Configuration
-PICKLEAXE_API_URL="https://api.pickleaxe.com/v1"
-PICKLEAXE_API_KEY="your-pickleaxe-api-key"
-
-# Notification Configuration (Optional)
-SMTP_HOST="smtp.gmail.com"
-SMTP_PORT=587
-SMTP_USER="your-email@gmail.com"
-SMTP_PASS="your-email-password"
-
-TWILIO_ACCOUNT_SID="your-twilio-account-sid"
-TWILIO_AUTH_TOKEN="your-twilio-auth-token"
-TWILIO_PHONE_NUMBER="+1234567890"
-```
-
-### Security Configuration
-
-The application includes comprehensive security measures:
-- Rate limiting (100 requests per 15 minutes by default)
-- CORS protection
-- Security headers via Helmet
-- Input validation with Zod
-- SQL injection prevention with Prisma
-- XSS protection
-
-## 🗄️ Database Setup
-
-### Using Prisma
-
-The application uses Prisma as the ORM. The schema includes:
-
-- **Users** - Authentication and user management
-- **Sessions** - JWT session management
-- **Cases & CaseEvents** - Legal case tracking
-- **SosIncidents** - Emergency reporting
-- **CorruptionReports** - Corruption reporting system
-- **MediaAssets** - File upload management
-- **ChatSessions & ChatMessages** - AI chatbot conversations
-
-### Migration Commands
-
-```bash
-# Generate Prisma client
-npm run prisma:generate
-
-# Create and apply migrations
-npm run prisma:migrate
-
-# View database in Prisma Studio
-npm run prisma:studio
-
-# Reset database (development only)
-npx prisma migrate reset
-```
-
-## 🚀 Running the Application
-
-### Development Mode
-```bash
-# Start API server with hot reload
-npm run dev
-
-# Start background job workers (in separate terminal)
-npm run worker
-```
-
-### Production Mode
-```bash
 # Build the application
 npm run build
 
-# Start API server
+# Start the API server
 npm start
 
-# Start background job workers (in separate process)
+# Start background workers (in separate terminal)
 npm run worker
 ```
 
-### Using PM2 (Production)
+### Frontend Setup
+
 ```bash
-# Install PM2 globally
-npm install -g pm2
+cd frontend
 
-# Start with PM2
-pm2 start ecosystem.config.js
+# Install dependencies
+npm install
 
-# Monitor processes
-pm2 status
-pm2 logs
+# Start development server
+npm start
+
+# Build for production
+npm run build
 ```
+
+## 📊 Application Structure
+
+```
+NyayaMitra/
+├── frontend/                 # React frontend application
+│   ├── public/              # Static assets
+│   ├── src/
+│   │   ├── components/      # Reusable UI components
+│   │   ├── pages/           # Page components
+│   │   ├── store/           # Redux store and slices
+│   │   ├── services/        # API services
+│   │   ├── types/           # TypeScript type definitions
+│   │   └── utils/           # Utility functions
+│   ├── Dockerfile           # Frontend container configuration
+│   └── nginx.conf           # Nginx configuration for frontend
+├── src/                     # Backend source code
+│   ├── routes/              # API route handlers
+│   ├── services/            # Business logic services
+│   ├── middleware/          # Express middleware
+│   ├── jobs/                # Background job processors
+│   ├── config/              # Configuration files
+│   ├── types/               # TypeScript definitions
+│   └── utils/               # Utility functions
+├── prisma/                  # Database schema and migrations
+├── docker/                  # Docker configuration files
+├── logs/                    # Application logs
+├── uploads/                 # File uploads (development)
+├── docker-compose.yml       # Development setup
+├── docker-compose.prod.yml  # Production setup
+├── deploy.sh                # Development deployment script
+└── deploy-prod.sh           # Production deployment script
+```
+
+## 🔧 Configuration
+
+### Environment Variables
+
+#### Backend (.env)
+```env
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/nyayamitra
+
+# Redis
+REDIS_URL=redis://localhost:6379
+
+# JWT Secrets
+JWT_SECRET=your-super-secret-jwt-key
+JWT_REFRESH_SECRET=your-refresh-secret-key
+
+# AWS S3
+AWS_REGION=us-west-2
+AWS_ACCESS_KEY_ID=your-aws-key
+AWS_SECRET_ACCESS_KEY=your-aws-secret
+S3_BUCKET_NAME=nyayamitra-uploads
+
+# External APIs
+PICKLEAXE_API_URL=https://api.pickleaxe.com/v1
+PICKLEAXE_API_KEY=your-pickleaxe-key
+
+# Security
+CORS_ORIGIN=http://localhost:3000,http://localhost
+```
+
+#### Frontend (.env)
+```env
+REACT_APP_API_URL=http://localhost:3000/api
+REACT_APP_APP_NAME=NyayaMitra
+REACT_APP_VERSION=1.0.0
+```
+
+## 📱 Screenshots
+
+### Homepage
+![Homepage](https://github.com/user-attachments/assets/fdd8d560-3cee-42c7-868d-8d54a4b7dec9)
+
+### Registration
+![Registration](https://github.com/user-attachments/assets/e3d8a2e1-ec01-4a21-a223-a55aa581cd3d)
+
+### Login
+![Login](https://github.com/user-attachments/assets/3e31379f-eeec-4f52-a8a9-2fd26c340a74)
 
 ## 📖 API Documentation
 
@@ -285,69 +307,43 @@ Authorization: Bearer <jwt_token>
 
 #### Search Cases
 ```http
-GET /api/cases/search?query=case&status=ONGOING&page=1&limit=10
+GET /api/cases/search?query=case_number&status=ONGOING
+Authorization: Bearer <jwt_token>
 ```
 
-#### Follow a Case
+#### Follow Case
 ```http
 POST /api/cases/follow
 Authorization: Bearer <jwt_token>
-Content-Type: application/json
 
 {
   "caseId": "case_id_here"
 }
 ```
 
-#### Get Followed Cases
-```http
-GET /api/cases/followed?page=1&limit=10
-Authorization: Bearer <jwt_token>
-```
-
 ### SOS Emergency Endpoints
 
-#### Create SOS Incident
+#### Create Emergency
 ```http
-POST /api/sos
+POST /api/sos/create
 Authorization: Bearer <jwt_token>
-Content-Type: application/json
 
 {
   "location": {
     "lat": 28.6139,
-    "lng": 77.2090,
-    "address": "New Delhi, India"
+    "lng": 77.2090
   },
-  "description": "Emergency situation description",
+  "description": "Emergency description",
   "priority": "HIGH"
 }
 ```
 
-#### Upload Media to SOS
-```http
-POST /api/sos/:id/media/upload-urls
-Authorization: Bearer <jwt_token>
-Content-Type: application/json
-
-{
-  "files": [
-    {
-      "filename": "evidence.jpg",
-      "contentType": "image/jpeg",
-      "size": 1024000
-    }
-  ]
-}
-```
-
-### Chatbot Endpoints
+### Chat Endpoints
 
 #### Create Chat Session
 ```http
 POST /api/chat/sessions
 Authorization: Bearer <jwt_token>
-Content-Type: application/json
 
 {
   "title": "Legal Query Session"
@@ -356,201 +352,184 @@ Content-Type: application/json
 
 #### Send Message
 ```http
-POST /api/chat/sessions/:id/messages
+POST /api/chat/sessions/:sessionId/messages
 Authorization: Bearer <jwt_token>
-Content-Type: application/json
 
 {
-  "content": "What are my rights in a property dispute?",
+  "content": "What are my rights in this situation?",
   "role": "USER"
 }
 ```
 
-## 🔄 Background Jobs
+### Report Endpoints
 
-The application uses BullMQ for background job processing:
+#### Submit Report
+```http
+POST /api/reports
+Authorization: Bearer <jwt_token>
 
-### Job Types
-
-1. **SOS Dispatch Jobs** - Notify emergency services
-2. **Notification Jobs** - Send email/SMS notifications
-3. **Case Sync Jobs** - Sync case data from external APIs
-4. **Report Triage Jobs** - Auto-assign corruption reports
-
-### Job Monitoring
-
-Access job monitoring at:
-```
-GET /api/admin/jobs/stats
-Authorization: Bearer <admin_token>
+{
+  "title": "Corruption Report",
+  "description": "Description of the incident",
+  "category": "BRIBERY",
+  "location": "Location details",
+  "incidentDate": "2024-01-15T10:00:00Z",
+  "isAnonymous": false
+}
 ```
 
-## 🐳 Docker Setup
+## 🔍 Health Monitoring
 
-### Development with Docker Compose
+### Health Check Endpoint
+```http
+GET /health
+
+Response:
+{
+  "status": "healthy",
+  "timestamp": "2024-01-15T10:00:00Z",
+  "uptime": "3600s",
+  "environment": "development",
+  "version": "1.0.0",
+  "services": {
+    "database": "connected",
+    "redis": "connected"
+  }
+}
+```
+
+### Monitoring Commands
 
 ```bash
-# Start all services
-npm run docker:up
+# View all logs
+docker-compose logs -f
 
-# View logs
-npm run docker:logs
+# View specific service logs
+docker-compose logs -f api
+docker-compose logs -f frontend
+docker-compose logs -f postgres
 
-# Stop all services
-npm run docker:down
+# Check service status
+docker-compose ps
+
+# Monitor resource usage
+docker stats
 ```
 
-### Services Included
+## 🛡️ Security Features
 
-- **API Server** - Main Express.js application
-- **Worker** - Background job processor
-- **PostgreSQL** - Database
-- **Redis** - Cache and job queue
-- **PgAdmin** - Database administration (development)
-- **RedisInsight** - Redis monitoring (development)
+- **Rate Limiting**: 100 requests per 15 minutes by default
+- **CORS Protection**: Configurable origin validation
+- **Security Headers**: Comprehensive security headers via Helmet
+- **Input Validation**: Zod schema validation for all inputs
+- **SQL Injection Prevention**: Prisma ORM with parameterized queries
+- **XSS Protection**: Content Security Policy headers
+- **Authentication**: JWT with refresh token rotation
+- **Password Security**: bcrypt hashing with salt rounds
+- **File Upload Security**: Virus scanning and type validation
+- **HTTPS Support**: SSL/TLS configuration for production
 
-### Production Docker Setup
+## 🚀 Production Deployment
 
+### Server Requirements
+
+- **Operating System**: Linux (Ubuntu 20.04+ recommended)
+- **RAM**: 4GB minimum, 8GB recommended
+- **Storage**: 50GB minimum SSD
+- **CPU**: 2 cores minimum, 4 cores recommended
+- **Network**: Static IP with domain name
+
+### SSL/HTTPS Setup
+
+1. **Obtain SSL certificates** (Let's Encrypt recommended):
+   ```bash
+   # Install Certbot
+   sudo apt install certbot python3-certbot-nginx
+   
+   # Obtain certificate
+   sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+   ```
+
+2. **Update nginx configuration** in `docker/nginx/prod.conf`
+
+3. **Configure automatic renewal**:
+   ```bash
+   # Add to crontab
+   0 12 * * * /usr/bin/certbot renew --quiet
+   ```
+
+### Backup Strategy
+
+#### Database Backup
 ```bash
-# Build production image
-docker build -t nyayamitra-api .
-
-# Run with production profile
-docker-compose --profile production up -d
+# Create backup script
+#!/bin/bash
+docker exec nyayamitra-postgres-prod pg_dump -U nyayamitra_user nyayamitra > backup_$(date +%Y%m%d_%H%M%S).sql
 ```
+
+#### File Uploads Backup
+```bash
+# Sync uploads to S3
+aws s3 sync ./uploads s3://your-backup-bucket/uploads/
+```
+
+### Performance Optimization
+
+1. **Database indexing**: Ensure proper indexes on frequently queried fields
+2. **Redis caching**: Implement caching for frequently accessed data
+3. **CDN setup**: Use CloudFront or similar for static assets
+4. **Load balancing**: Scale horizontally with multiple API instances
+5. **Database connection pooling**: Configure appropriate pool sizes
 
 ## 🧪 Testing
 
-### Running Tests
-
 ```bash
-# Run all tests
+# Run backend tests
 npm test
 
-# Run tests in watch mode
-npm run test:watch
+# Run frontend tests
+cd frontend && npm test
 
-# Run tests with coverage
+# Run integration tests
+npm run test:integration
+
+# Check code coverage
 npm run test:coverage
 ```
 
-### Test Structure
-
-```
-tests/
-├── unit/          # Unit tests
-├── integration/   # Integration tests
-├── fixtures/      # Test data
-└── helpers/       # Test utilities
-```
-
-## 🚀 Deployment
-
-### Environment Setup
-
-1. **Production Server Requirements**
-   - Node.js 18+
-   - PostgreSQL 12+
-   - Redis 6+
-   - Nginx (for load balancing)
-
-2. **Environment Variables**
-   - Set `NODE_ENV=production`
-   - Use strong JWT secrets
-   - Configure production database URLs
-   - Set up AWS S3 credentials
-
-### Using PM2
-
-```bash
-# Install PM2
-npm install -g pm2
-
-# Start application
-pm2 start ecosystem.config.js --env production
-
-# Save PM2 configuration
-pm2 save
-pm2 startup
-```
-
-### Using Docker
-
-```bash
-# Build production image
-docker build -t nyayamitra-api:latest .
-
-# Run with Docker Compose
-docker-compose -f docker-compose.prod.yml up -d
-```
-
-### Health Checks
-
-The application includes built-in health checks:
-- **API Health**: `GET /health`
-- **Database Health**: Included in health endpoint
-- **Redis Health**: Included in health endpoint
-- **Job System Health**: `GET /api/admin/jobs/health`
-
-## 📊 Monitoring & Logging
-
-### Logging
-
-The application uses Winston for structured logging:
-- **Log Levels**: error, warn, info, debug
-- **Log Files**: `logs/app.log`, `logs/error.log`
-- **Request Logging**: All API requests are logged
-- **Security Events**: Authentication failures, authorization denials
-
-### Monitoring
-
-- **Health Endpoints**: Built-in health checks
-- **Performance Metrics**: Request duration, memory usage
-- **Job Monitoring**: Queue statistics and job success rates
-
 ## 🤝 Contributing
 
-### Development Workflow
-
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Run the test suite
-6. Submit a pull request
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
 
-### Code Style
+### Development Guidelines
 
-- **ESLint**: Run `npm run lint`
-- **Prettier**: Code formatting
-- **TypeScript**: Strict type checking
-- **Conventional Commits**: Use conventional commit messages
-
-### Pull Request Process
-
-1. Ensure tests pass: `npm test`
-2. Update documentation if needed
-3. Add changelog entry
-4. Request code review
+- **Code Style**: ESLint + Prettier configuration provided
+- **Commit Messages**: Use conventional commits
+- **Type Safety**: Full TypeScript coverage required
+- **Testing**: Write tests for new functionality
+- **Documentation**: Update README and API docs
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## 🆘 Support & Contact
 
-- **Documentation**: Check this README and inline code comments
-- **Issues**: Report bugs and feature requests on GitHub
-- **Community**: Join our discussions for questions and support
+- **Documentation**: This README and inline code comments
+- **Issues**: [GitHub Issues](https://github.com/ayrus15/NyayaMitra/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/ayrus15/NyayaMitra/discussions)
 
 ## 🙏 Acknowledgments
 
-- **Prisma** - Next-generation ORM
-- **BullMQ** - Robust job queue system
-- **Express.js** - Fast, minimalist web framework
-- **TypeScript** - Typed JavaScript at scale
-- **Zod** - Schema validation with static type inference
+- Material-UI team for the excellent UI components
+- Prisma team for the amazing ORM
+- Redis team for the reliable caching solution
+- All contributors who helped build this project
 
 ---
 
-Built with ❤️ by the NyayaMitra Team
+**NyayaMitra** - Empowering citizens with accessible digital legal services. 🏛️⚖️
