@@ -55,7 +55,7 @@ services:
       S3_BUCKET_NAME: nyayamitra-uploads-dev
       PICKLEAXE_API_URL: https://api.pickleaxe.com/v1
       PICKLEAXE_API_KEY: your-pickleaxe-api-key
-      CORS_ORIGIN: http://localhost:3000,http://localhost:5173
+      CORS_ORIGIN: http://localhost:3000,http://localhost:5173,http://localhost
       LOG_LEVEL: debug
     ports:
       - "3000:3000"
@@ -73,6 +73,20 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    restart: unless-stopped
+
+  # Frontend React App
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: nyayamitra-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    environment:
+      - REACT_APP_API_URL=http://localhost:3000/api
     restart: unless-stopped
 
   # Job Worker (separate instance for background jobs)
